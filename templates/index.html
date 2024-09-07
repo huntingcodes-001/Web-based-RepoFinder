@@ -9,46 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            padding: 20px;
-        }
-        .result {
-            margin-top: 20px;
-        }
-        .readme-content {
-            white-space: pre-wrap;
-            max-height: 150px;
-            overflow: auto;
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-        .loading-spinner {
-            display: none;
-            margin: 10px auto;
-        }
-        .is-loading {
-            position: relative;
-        }
-        .is-loading:after {
-            content: "";
-            display: inline-block;
-            width: 1em;
-            height: 1em;
-            margin-left: 0.5em;
-            border-radius: 50%;
-            border: 2px solid currentColor;
-            border-right-color: transparent;
-            animation: spin 0.75s linear infinite;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
     <div class="container">
@@ -70,14 +32,14 @@
             <div class="control">
                 <div class="select">
                     <select id="language">
-                        <option value="">Any</option>
-                        <option value="Python">Python</option>
-                        <option value="JavaScript">JavaScript</option>
-                        <option value="Java">Java</option>
-                        <option value="C++">C++</option>
-                        <option value="Ruby">Ruby</option>
-                        <option value="Go">Go</option>
-                        <!-- Add more languages as needed -->
+                        <option value="Any" data-icon="fab fa-python">Any</option>
+                        <option value="Python" data-icon="fab fa-python">Python</option>
+                        <option value="JavaScript" data-icon="fab fa-js">JavaScript</option>
+                        <option value="Java" data-icon="fab fa-java">Java</option>
+                        <option value="C++" data-icon="fas fa-code">C++</option>
+                        <option value="Ruby" data-icon="fas fa-gem">Ruby</option>
+                        <option value="Go" data-icon="fab fa-golang">Go</option>
+                        <!-- Add more languages with icons as needed -->
                     </select>
                 </div>
             </div>
@@ -88,100 +50,7 @@
         <div id="results" class="result"></div>
     </div>
 
-    <script>
-        function showLoading(id) {
-            document.getElementById(id).style.display = 'inline-block';
-        }
-
-        function hideLoading(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        function searchRepos() {
-            const query = document.getElementById('query').value;
-            const maxResults = document.getElementById('max_results').value;
-            const language = document.getElementById('language').value;
-            const searchButton = document.getElementById('search-button');
-
-            // Show the search loading spinner
-            showLoading('loading-search');
-            searchButton.classList.add('is-loading');
-
-            fetch('/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `query=${query}&max_results=${maxResults}&language=${language}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Hide the search loading spinner
-                hideLoading('loading-search');
-                searchButton.classList.remove('is-loading');
-
-                if (data.error) {
-                    alert(data.error);
-                    return;
-                }
-                displayResults(data);
-            });
-        }
-
-        function displayResults(repos) {
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
-
-            repos.forEach(repo => {
-                const repoDiv = document.createElement('div');
-                repoDiv.className = 'box';
-                const cloneButtonId = `clone-button-${repo.name}`;
-                
-                repoDiv.innerHTML = `
-                    <p><i class="fas fa-book"></i> <strong>Repository:</strong> ${repo.name}</p>
-                    <p><i class="fas fa-user"></i> <strong>Owner:</strong> ${repo.owner}</p>
-                    <p><i class="fas fa-star"></i> <strong>Stars:</strong> ${repo.stars}</p>
-                    <p><i class="fas fa-code-branch"></i> <strong>Forks:</strong> ${repo.forks}</p>
-                    <p><i class="fas fa-exclamation-circle"></i> <strong>Open Issues:</strong> ${repo.open_issues}</p>
-                    <p><i class="fas fa-balance-scale"></i> <strong>License:</strong> ${repo.license}</p>
-                    <p><i class="fas fa-clock"></i> <strong>Last Updated:</strong> ${new Date(repo.updated_at).toLocaleString()}</p>
-                    <p><i class="fas fa-info-circle"></i> <strong>Description:</strong> ${repo.description}</p>
-                    <p><i class="fas fa-link"></i> <strong>URL:</strong> <a href="${repo.html_url}" target="_blank">${repo.html_url}</a></p>
-                    <button id="${cloneButtonId}" class="button is-small is-link" onclick="cloneRepo('${repo.clone_url}', '${repo.name}', '${cloneButtonId}')">Clone</button>
-                    <div id="loading-clone-${repo.name}" class="loading-spinner">Cloning...</div>
-                    <div class="readme-content"><strong>README Preview:</strong><br>${repo.readme}</div>
-                `;
-                resultsDiv.appendChild(repoDiv);
-            });
-        }
-
-        function cloneRepo(repoUrl, repoName, buttonId) {
-            const cloneButton = document.getElementById(buttonId);
-            const loadingCloneId = `loading-clone-${repoName}`;
-
-            // Show the cloning loading spinner
-            cloneButton.classList.add('is-loading');
-            showLoading(loadingCloneId);
-
-            fetch('/clone', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `repo_url=${encodeURIComponent(repoUrl)}&repo_name=${encodeURIComponent(repoName)}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                
-                // Hide the cloning loading spinner
-                hideLoading(loadingCloneId);
-                cloneButton.classList.remove('is-loading');
-
-                if (data.message.includes("cloned successfully")) {
-                    cloneButton.textContent = 'Cloned';
-                    cloneButton.classList.remove('is-link');
-                    cloneButton.classList.add('is-success');
-                    cloneButton.disabled = true;
-                }
-            });
-        }
-    </script>
+    <!-- Custom JS -->
+    <script src="../static/app.js"></script>
 </body>
 </html>
