@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repo Search</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .repo {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .repo h3 {
+            margin-top: 0;
+        }
+        .clone-btn {
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .clone-btn:hover {
+            background-color: #007B9A;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GitHub Repo Search</h1>
+        <input type="text" id="query" placeholder="Enter search query">
+        <input type="number" id="max_results" placeholder="Number of results" value="10">
+        <button onclick="searchRepos()">Search</button>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function searchRepos() {
+            const query = document.getElementById('query').value;
+            const max_results = document.getElementById('max_results').value;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = 'Searching...';
+
+            try {
+                const response = await axios.post('/search', {
+                    query: query,
+                    max_results: max_results
+                });
+
+                resultsDiv.innerHTML = '';
+                response.data.forEach(repo => {
+                    const repoDiv = document.createElement('div');
+                    repoDiv.className = 'repo';
+                    repoDiv.innerHTML = `
+                        <h3>${repo.name}</h3>
+                        <p>Owner: ${repo.owner.login}</p>
+                        <p>Stars: ${repo.stargazers_count}</p>
+                        <p>Description: ${repo.description || 'No description'}</p>
+                        <p>URL: <a href="${repo.html_url}" target="_blank">${repo.html_url}</a></p>
+                        <button class="clone-btn" onclick="cloneRepo('${repo.clone_url}', '${repo.name}')">Clone</button>
+                    `;
+                    resultsDiv.appendChild(repoDiv);
+                });
+            } catch (error) {
+                resultsDiv.innerHTML = 'Error searching repositories';
+                console.error(error);
+            }
+        }
+
+        async function cloneRepo(repoUrl, repoName) {
+            try {
+                const response = await axios.post('/clone', {
+                    repo_url: repoUrl,
+                    repo_name: repoName
+                });
+                alert(response.data.message);
+            } catch (error) {
+                alert('Error cloning repository');
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
