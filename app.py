@@ -7,7 +7,7 @@ import base64
 app = Flask(__name__)
 
 # Set your GitHub token here
-GITHUB_TOKEN = 'you_api_key'
+GITHUB_TOKEN = 'your_api_key'
 GITHUB_API_URL = 'https://api.github.com'
 PROJECTS_DIR = 'reps'  # Directory where repos will be cloned
 
