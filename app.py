@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import os
 import git
+import base64
 
 app = Flask(__name__)
 
@@ -16,7 +17,6 @@ headers = {
 }
 
 def search_repos(query, language=None, max_results=10):
-    # Add language filter to the query if specified
     if language:
         query += f"+language:{language}"
     
@@ -25,9 +25,44 @@ def search_repos(query, language=None, max_results=10):
     
     if response.status_code == 200:
         repos = response.json()['items'][:max_results]
-        return repos
+        enhanced_repos = []
+
+        # Fetch additional details for each repository
+        for repo in repos:
+            owner = repo['owner']['login']
+            repo_name = repo['name']
+            repo_details = {
+                'name': repo_name,
+                'owner': owner,
+                'stars': repo['stargazers_count'],
+                'forks': repo['forks_count'],
+                'open_issues': repo['open_issues_count'],
+                'license': repo['license']['name'] if repo['license'] else 'None',
+                'updated_at': repo['updated_at'],
+                'description': repo['description'],
+                'html_url': repo['html_url'],
+                'clone_url': repo['clone_url'],
+                'readme': fetch_readme(owner, repo_name)
+            }
+            enhanced_repos.append(repo_details)
+        
+        return enhanced_repos
     else:
         return None
+
+def fetch_readme(owner, repo_name):
+    """Fetch the README content of the repository."""
+    readme_url = f"{GITHUB_API_URL}/repos/{owner}/{repo_name}/readme"
+    response = requests.get(readme_url, headers=headers)
+    
+    if response.status_code == 200:
+        readme_data = response.json()
+        # Decode the base64 content of the README file
+        content = base64.b64decode(readme_data['content']).decode('utf-8')
+        # Return a truncated version of the README (first 500 characters)
+        return content[:500] + "..." if len(content) > 500 else content
+    else:
+        return "README not available."
 
 def clone_repo(repo_url, repo_name):
     # Ensure the projects directory exists
