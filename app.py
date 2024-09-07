@@ -7,7 +7,7 @@ import git
 app = Flask(__name__)
 
 # Set your GitHub token here
-GITHUB_TOKEN = 'your_token'
+GITHUB_TOKEN = 'your_token_here'
 GITHUB_API_URL = 'https://api.github.com'
 PROJECTS_DIR = 'repos'  # Directory where repos will be cloned
 
