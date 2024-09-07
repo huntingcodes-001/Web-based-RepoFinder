@@ -5,7 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub Repo Search</title>
+    <!-- Bulma CSS Framework -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             padding: 20px;
@@ -133,15 +136,15 @@
                 const cloneButtonId = `clone-button-${repo.name}`;
                 
                 repoDiv.innerHTML = `
-                    <strong>Repository:</strong> ${repo.name}<br>
-                    <strong>Owner:</strong> ${repo.owner}<br>
-                    <strong>Stars:</strong> ${repo.stars}<br>
-                    <strong>Forks:</strong> ${repo.forks}<br>
-                    <strong>Open Issues:</strong> ${repo.open_issues}<br>
-                    <strong>License:</strong> ${repo.license}<br>
-                    <strong>Last Updated:</strong> ${new Date(repo.updated_at).toLocaleString()}<br>
-                    <strong>Description:</strong> ${repo.description}<br>
-                    <strong>URL:</strong> <a href="${repo.html_url}" target="_blank">${repo.html_url}</a><br>
+                    <p><i class="fas fa-book"></i> <strong>Repository:</strong> ${repo.name}</p>
+                    <p><i class="fas fa-user"></i> <strong>Owner:</strong> ${repo.owner}</p>
+                    <p><i class="fas fa-star"></i> <strong>Stars:</strong> ${repo.stars}</p>
+                    <p><i class="fas fa-code-branch"></i> <strong>Forks:</strong> ${repo.forks}</p>
+                    <p><i class="fas fa-exclamation-circle"></i> <strong>Open Issues:</strong> ${repo.open_issues}</p>
+                    <p><i class="fas fa-balance-scale"></i> <strong>License:</strong> ${repo.license}</p>
+                    <p><i class="fas fa-clock"></i> <strong>Last Updated:</strong> ${new Date(repo.updated_at).toLocaleString()}</p>
+                    <p><i class="fas fa-info-circle"></i> <strong>Description:</strong> ${repo.description}</p>
+                    <p><i class="fas fa-link"></i> <strong>URL:</strong> <a href="${repo.html_url}" target="_blank">${repo.html_url}</a></p>
                     <button id="${cloneButtonId}" class="button is-small is-link" onclick="cloneRepo('${repo.clone_url}', '${repo.name}', '${cloneButtonId}')">Clone</button>
                     <div id="loading-clone-${repo.name}" class="loading-spinner">Cloning...</div>
                     <div class="readme-content"><strong>README Preview:</strong><br>${repo.readme}</div>
